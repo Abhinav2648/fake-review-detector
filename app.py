@@ -1,22 +1,19 @@
-
 import streamlit as st
-import pickle
+import joblib
 
-st.title("🛍️ Fake Review Detection")
+model = joblib.load("model.pkl")
+vectorizer = joblib.load("vectorizer.pkl")
 
-model = pickle.load(open("fake_review_model.pkl", "rb"))
-vectorizer = pickle.load(open("tfidf_vectorizer.pkl", "rb"))
+st.title("Fake Review Detection")
 
 review = st.text_area("Enter your review:")
 
 if st.button("Predict"):
-    if review.strip() == "":
-        st.warning("Please enter a review")
+    vec = vectorizer.transform([review])
+    result = model.predict(vec)[0]
+    
+    if result == 1:
+        st.error("Fake Review ❌")
     else:
-        vec = vectorizer.transform([review])
-        result = model.predict(vec)
+        st.success("Real Review ✅")
 
-        if result[0] == 1:
-            st.error("Fake Review ❌")
-        else:
-            st.success("Genuine Review ✅")
